@@ -1,5 +1,0 @@
-List of reminders and todo's for the gedit PlantUML plugin
-
--	Finish and test compatibility of plugin with gedit 3.12 and up.
--	Allow zoom-fit per-visualization
--	Add message-pane to the puml_window

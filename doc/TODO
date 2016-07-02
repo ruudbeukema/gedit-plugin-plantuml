@@ -1,0 +1,5 @@
+List of reminders and todo's for the gedit PlantUML plugin
+
+-	See if Windows-installer for gedit3 with PlantUML plugin (and *all* others?) can be made, since currently only gedit
+	v2.30 is officially  available for Windows. Maybe use Innosetup as the installer generator?
+-	Update gedit2-branch with first release and see how plugin can be made usable within gedit2

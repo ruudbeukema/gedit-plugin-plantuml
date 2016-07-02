@@ -1,0 +1,184 @@
+@startuml
+
+title gedit-plugin-plantuml | Class Diagram
+
+
+namespace Gedit2 #dedede {
+	Interface GeditPlugin
+	Class Plugin
+
+	GeditPlugin <|-- Plugin
+
+	GeditPlugin : +activate(GeditWindow in_window)
+	GeditPlugin : +deactivate(GeditWindow in_window)
+	GeditPlugin : +update_ui(GeditWindow in_window)
+	
+	note top of GeditPlugin
+		Plugin description file needs
+		to have a fixed extension
+		<i>pluginname</i>.gedit-plugin together
+		with Python file called
+		<i>pluginname</i>.py
+	end note
+
+	Plugin : +activate(GeditWindow in_window)
+	Plugin : +deactivate(GeditWindow in_window)
+	Plugin : +update_ui(GeditWindow in_window)
+}
+
+
+namespace Gedit3 #dedede {
+	Interface GeditWindowActivatable
+	Class Plugin
+	
+	GeditWindowActivatable <|-- Plugin
+	
+	GeditWindowActivatable : +__init__()
+	GeditWindowActivatable : +do_activate()
+	GeditWindowActivatable : +do_deactivate()
+	GeditWindowActivatable : +do_update_state()
+	
+	note top of GeditWindowActivatable
+		Plugin description file needs
+		to have a fixed extension
+		<i>pluginname</i>.plugin together
+		with Python file called
+		<i>pluginname</i>.py
+	end note
+
+	Plugin : -m_window : GeditWindow
+	Plugin : +__init__()
+	Plugin : +do_activate()
+	Plugin : +do_deactivate()
+	Plugin : +do_update_state()
+}
+
+
+Class Painting
+GtkScrolledWindow <|-left- Painting
+Painting : -m_eventbox = None
+Painting : -m_old_pointer = None
+Painting : -m_uml_filepath = None
+Painting : -m_img_filepath = None
+Painting : -m_img = None
+Painting : -m_spinner = None
+Painting : -m_zoom_fit = False
+Painting : -m_is_grabbed = False	
+Painting : +update()
+Painting : +refresh_image()
+Painting : +get_uml_filepath()
+Painting : +get_zoom_fit()
+Painting : +set_zoom_fit(in_zoom_fit_enable)
+Painting : +zoom_fit(in_pixbuf)
+Painting : +get_image_pixbuf(self)
+Painting : -on_image_move(context, data)
+Painting : -on_image_enter(event, data)
+Painting : -on_image_leave(event, data)
+Painting : -on_image_grab(event, data)
+Painting : -on_image_release(event, data)
+
+
+Class Gallery
+GtkNotebook <|-down- Gallery
+Gallery "1" *-down- "0..*" Painting : contains
+Gallery : +set_dock_state(in_is_docked)
+Gallery : +painting_add(in_painting, in_title)
+Gallery : +painting_remove(in_uml_filepath)
+Gallery : +painting_update(in_uml_filepath)
+Gallery : +painting_get_active()
+Gallery : +painting_set_active(in_uml_filepath)
+Gallery : +painting_exists(in_uml_filepath)
+Gallery : -on_resize(in_widget, in_data)
+
+
+Class Menu
+Menu : -m_action_group = None
+Menu : -m_ui_id = None
+Menu : -m_manager = None
+Menu : -m_dock_location_toggle_cb = None
+Menu : +insert(in_window)
+Menu : +remove()
+Menu : -on_menu_click(in_action)
+Menu : -on_dock_location_toggle(in_action, in_current)
+
+
+Class Model
+Model : -m_output_folder = ""
+Model : -m_dot_cmd = ""
+Model : +plantuml_check_if_present(self)
+Model : +plantuml_run(self, in_uml_filepath, in_img_filepath)
+Model : +get_output_filepath(self, in_path)
+Model : +file_has_extension(self, in_file)
+Model : +file_exists(in_file)
+
+
+Class ToolsMenu_Item
+GtkHBox <|-- ToolsMenu_Item
+ToolsMenu_Item : -m_image = None
+ToolsMenu_Item : -m_label = None
+ToolsMenu_Item : +update(in_image, in_text)
+
+
+Class ToolsMenu
+GtkHBox <|-- ToolsMenu
+ToolsMenu "1" *-right- "1..*" ToolsMenu_Item : contains
+ToolsMenu : -m_has_dock_icon = False	
+ToolsMenu : +set_dock_state(in_is_docked)
+
+
+Class Viewer
+GtkVBox <|-down- Viewer
+Viewer "1" *--- "1" ToolsMenu : contains
+Viewer "1" *--down- "1" Gallery : contains
+Viewer : -VBox[0] = Gallery
+Viewer : -VBox[1] = ToolsMenu
+Viewer : +set_dock_state(in_is_docked)
+Viewer : +uml_update(in_uml_filepath)
+Viewer : +uml_exists(in_uml_filepath)
+Viewer : +uml_add(in_uml_filepath, in_img_filepath, in_title)
+Viewer : +uml_remove(in_uml_filepath)
+Viewer : +uml_set_active(in_uml_filepath)
+Viewer : -on_copy_image(widget)
+Viewer : -on_save_image(widget)
+Viewer : -on_zoom_fit(in_widget)
+
+
+Class PlantUMLWindow
+GtkWindow <|-down- PlantUMLWindow
+PlantUMLWindow : +show_all()
+
+
+Class View_Manager
+View_Manager "1" *-- "1" Model : uses
+View_Manager "1" *-right- "1" PlantUMLWindow : uses
+View_Manager "1" *-left- "1" Viewer : uses
+View_Manager "1" *-- "1" Menu : uses
+View_Manager : -m_active_panel = None
+View_Manager : -m_gedit_window = None
+View_Manager : -m_gedit_bottom_panel = None
+View_Manager : -m_gedit_side_panel = None	
+View_Manager : -m_plantuml_found = False
+View_Manager : -m_is_docked = True
+View_Manager : -m_dock_widget = None
+View_Manager : +activate(in_window)
+View_Manager : +deactivate(in_window)
+View_Manager : -get_filepaths(in_document)
+View_Manager : -panel_switch()
+View_Manager : -panel_update(in_widget)					
+View_Manager : -panel_add(in_widget)		
+View_Manager : -panel_clear()
+View_Manager : -on_tab_changed(in_window, in_tab, in_data=None)
+View_Manager : -on_tab_state_changed(in_window, in_data=None)
+View_Manager : -on_tab_added(in_window, in_tab, in_data=None)
+View_Manager : -on_tab_removed(in_window, in_tab, in_data=None)
+View_Manager : -on_window_close(in_widget, data=None)		
+View_Manager : -on_dock_toggle(in_widget)
+View_Manager : -dock()
+View_Manager : -undock()
+
+
+Gedit2.Plugin "1" *-- "1" View_Manager : uses
+Gedit3.Plugin "1" *-- "1" View_Manager : uses
+
+
+@enduml
