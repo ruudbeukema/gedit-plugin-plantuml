@@ -1,0 +1,4 @@
+List of reminders and todo's for the gedit PlantUML plugin
+
+-	Verify if the Gedit3 plugin system has changed since its GUI-makeover (in v3.12?). If so, detect absence of bottom
+	and/or side-panel and launch separate PlantUML-window automatically (whilst disabling the docking functionality).
