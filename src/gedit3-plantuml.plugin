@@ -1,0 +1,10 @@
+[Plugin]
+Loader=python3
+Module=gedit3-plantuml
+IAge=3
+Name=PlantUML Visualization
+Description=Visualize PlantUML files.
+Authors=Ruud Beukema <info@ruudbeukema.nl>
+Copyright=Copyright © 2017 Ruud Beukema <info@ruudbeukema.nl>
+Website=http://www.ruudbeukema.nl
+Version=2.0.0
