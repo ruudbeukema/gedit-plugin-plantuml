@@ -99,8 +99,13 @@ class PlantumlDriverWorker(object):
 		
 		:param source_filepath: path to the PlantUML source file
 		"""
-		subprocess.check_output(["java", "-jar", PLANTUML_JAR_FILEPATH, "-tpng", "-quiet", "-nbthread auto",
-		                         source_filepath])
+		try:
+			output = subprocess.check_output(["java", "-jar", PLANTUML_JAR_FILEPATH, "-tpng", "-quiet",
+											  "-nbthread auto", source_filepath], stderr=subprocess.STDOUT)
+		except subprocess.CalledProcessError as e:
+			# In case of syntax errors PlantUML will generate an image that reflects this
+			pass
+		
 		output_filepath = os.path.splitext(source_filepath)[0] + ".png"
 
 		self.output_queue.put((source_filepath, output_filepath))
