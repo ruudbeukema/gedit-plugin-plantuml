@@ -17,8 +17,8 @@ class PlantumlControl(object):
 	def __init__(self, docking_locations={'side-panel': None, 'bottom-panel': None }):
 		"""
 		Creates a PlantumlControl instance
-		
-		:param docking_locations: a dict containing Gedit's available docking locations 
+
+		:param docking_locations: a dict containing Gedit's available docking locations
 		"""
 		self.docking_locations = docking_locations
 		self.viewer = PlantumlViewer()
@@ -40,11 +40,14 @@ class PlantumlControl(object):
 		while not self.generated_uml_queue.empty():
 			source_filepath, output_filepath = self.generated_uml_queue.get_nowait()
 			self.viewer.update_uml(source_filepath, output_filepath)
-		
+
+	def get_is_present(self, source_filepath):
+		return source_filepath in self.sources
+
 	def add_file(self, source_filepath):
 		"""
 		Adds the given file to PlantumlViewer and triggers the generation of the UML diagram by the PlantumlDriver.
-		
+
 		:param source_filepath: path to the PlantUML source file
 		"""
 		if source_filepath not in self.sources:
@@ -57,7 +60,7 @@ class PlantumlControl(object):
 	def remove_file(self, source_filepath):
 		"""
 		Removes the given file from the PlantumlViewer.
-		
+
 		:param source_filepath: path to the PlantUML source file
 		"""
 		if source_filepath in self.sources:
@@ -67,7 +70,7 @@ class PlantumlControl(object):
 	def set_active_file(self, source_filepath):
 		"""
 		Activates the given file in the PlantumlViewer.
-		
+
 		:param source_filepath: path to the PlantUML source file
 		"""
 		if source_filepath in self.sources:
@@ -75,9 +78,9 @@ class PlantumlControl(object):
 
 	def file_saved(self, source_filepath):
 		"""
-		Triggers the (re-)generation of the UML diagram by the PlantumlDriver and notifies to the PlantumlViewer that 
+		Triggers the (re-)generation of the UML diagram by the PlantumlDriver and notifies to the PlantumlViewer that
 		UML generation is in progress.
-		
+
 		:param source_filepath: path to the PlantUML source file
 		"""
 		if source_filepath in self.sources:
@@ -87,7 +90,7 @@ class PlantumlControl(object):
 	def reorder_tabs(self, source_filepaths_ordered):
 		"""
 		Instructs the PlantumlViewer to reorder its tabs.
-		
+
 		:param source_filepaths_ordered: ordered list of paths to PlantUML source files.
 		"""
 		if set(source_filepaths_ordered) == set(self.sources):

@@ -32,3 +32,4 @@ class PlantumlPlugin(GObject.Object, Gedit.WindowActivatable):
 	def do_update_state(self):
 		""" Called when the Gedit window/tab/document changes state """
 		pass
+

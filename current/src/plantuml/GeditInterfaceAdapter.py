@@ -12,16 +12,16 @@ SUPPORTED_SOURCE_FILE_EXTENSIONS = [".puml", ".plantuml", ".uml"]
 
 
 class GeditInterfaceAdapter(object):
-	""" 
+	"""
 	This class provide the logic to adapt the Gedit plugin-interface into something
 	that is useful for driving PlantumlControl.
 	"""
 
 	def __init__(self, window):
-		""" 
+		"""
 		Creates a GeditInterfaceAdapter instance
-		
-		:param window: Gedit window instance 
+
+		:param window: Gedit window instance
 		"""
 		docking_locations = self.__get_docking_locations(window)
 		self.plantuml_ctrl = PlantumlControl(docking_locations)
@@ -46,12 +46,12 @@ class GeditInterfaceAdapter(object):
 	def __get_docking_locations(self, window):
 		"""
 		Obtains all possible docking locations from Gedit
-		
-		:param window: Gedit window instance 
+
+		:param window: Gedit window instance
 		:return: references to the side and bottom docking locations (X and Y respectively) if any as:
-		
+
 		{
-			'side-panel': X, 
+			'side-panel': X,
 			'bottom-panel': Y
 		}
 		"""
@@ -72,7 +72,7 @@ class GeditInterfaceAdapter(object):
 	def __track_tab_changes(self, window):
 		"""
 		Attaches to the right window-signals to track it for tab changes
-		
+
 		:param window: Gedit window instance
 		"""
 		window.connect("active-tab-changed", self.__on_active_tab_changed)
@@ -83,14 +83,14 @@ class GeditInterfaceAdapter(object):
 	def __track_document_changes(self, document):
 		"""
 		Attached to the right document-signal to track it for changes.
-		
-		:param document: Gedit document instance 
+
+		:param document: Gedit document instance
 		"""
 		document.connect("saved", self.__on_document_saved)
 
 	def __on_ival_timer_timeout(self):
 		"""
-		This (asynchronous) GLib-timer callback takes care of periodically triggering PlantumlControl to process any 
+		This (asynchronous) GLib-timer callback takes care of periodically triggering PlantumlControl to process any
 		generated UML diagrams
 		"""
 		self.plantuml_ctrl.process_generated_uml()
@@ -100,8 +100,8 @@ class GeditInterfaceAdapter(object):
 	def __on_active_tab_changed(self, window, tab):
 		"""
 		Takes care of notifying PlantumlControl about a changed active tab.
-		
-		:param window: Gedit window instance 
+
+		:param window: Gedit window instance
 		:param tab: Gedit window tab
 		"""
 		path = tab.get_document().get_uri_for_display()
@@ -112,29 +112,31 @@ class GeditInterfaceAdapter(object):
 	def __on_active_tab_state_changed(self, window):
 		"""
 		Takes care of adding new files to PlantumlControl and keeping track of their status.
-		
+
 		:param window: Gedit window instance
 		"""
 		# Enum Gedit.TabState not accessible, therefore hard-coding the required states as per C-API documentation:
 		GEDIT_TAB_STATE_NORMAL = 0
 		GEDIT_TAB_STATE_LOADING = 1
+		GEDIT_TAB_STATE_SAVING = 3
 
 		# Newly opened documents are detected based on the tab state transition LOADING -> NORMAL
 		tab = window.get_active_tab()
 		new_tab_state = tab.get_state()
 		if new_tab_state == GEDIT_TAB_STATE_NORMAL:
-			if self.active_tab_state == GEDIT_TAB_STATE_LOADING:
+			if self.active_tab_state in (GEDIT_TAB_STATE_LOADING, GEDIT_TAB_STATE_SAVING):
 				document = tab.get_document()
 				path = document.get_uri_for_display()
-				if self.__get_is_puml(path):
+
+				if self.__get_is_puml(path) and not self.plantuml_ctrl.get_is_present(path):
 					self.plantuml_ctrl.add_file(str(path))
 					self.__track_document_changes(document)
 		self.active_tab_state = new_tab_state
 
 	def __on_document_saved(self, document):
-		""" 
+		"""
 		Notifies PlantumlControl about a saved document
-		
+
 		:param document: Gedit Document instance
 		"""
 		path = document.get_uri_for_display()
@@ -142,9 +144,9 @@ class GeditInterfaceAdapter(object):
 			self.plantuml_ctrl.file_saved(path)
 
 	def __on_tab_removed(self, window, tab):
-		""" 
+		"""
 		Notifies PlantumlControl about a document being closed
-		 
+
 		:param window: Gedit window instance
 		:param tab: Gedit Window's tab instance
 		"""
@@ -154,7 +156,7 @@ class GeditInterfaceAdapter(object):
 
 	def __on_tabs_reordered(self, window):
 		"""
-		Notifies PlantumlControl about tabs being reordered. 
+		Notifies PlantumlControl about tabs being reordered.
 		:param window: Gedit window instance
 		"""
 		paths_list = []
@@ -167,7 +169,7 @@ class GeditInterfaceAdapter(object):
 	def __get_is_puml(self, filepath):
 		"""
 		Determines if the given file is a valid PlantUML-file.
-		 
+
 		:param filepath: path to the file to check
 		:return: True if file is a PlantUML, or False if not.
 		"""
