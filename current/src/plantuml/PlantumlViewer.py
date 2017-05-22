@@ -22,6 +22,7 @@ class PlantumlViewer(object):
 	def add_file(self, source_filepath):
 		_, filename = os.path.split(source_filepath)
 		self.widget.add_diagram(source_filepath, filename)
+		self.widget.set_active_diagram(source_filepath)
 		self.window.show_all()
 
 	def remove_file(self, source_filepath):
